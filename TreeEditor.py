@@ -1,6 +1,6 @@
 class Tree:
     count = 1
-    def __init__(self, label, branches=[], parent = None, index = 0):
+    def __init__(self, label, branches=[], parent = None, index = 0, depth = 0):
         for c in branches:
             assert isinstance(c, Tree)
         self.label = label
@@ -8,6 +8,7 @@ class Tree:
         self.parent = parent 
         self.id = Tree. count
         self.index = index 
+        self.depth = depth
         Tree.count += 1
    
     def __repr__(self):
@@ -34,7 +35,17 @@ def update(t):
 
 def add(t):
     val = input("Enter leaf value: ")
-    t.branches.append(Tree(val, [], t, len(t.branches)))
+    t.branches.append(Tree(val, [], t, len(t.branches), t.depth+1))
+
+def delete(t):
+    if t.parent == None:
+        t.branches, t.label = [], None 
+    else:
+        for child in t.parent.branches[t.index+1:]:
+            child.index -= 1
+        t.parent.branches.pop(t.index)
+        return t.parent.branches[t.index]
+
 
 
 def move(t):
@@ -62,15 +73,17 @@ def move(t):
             print("Cannot move left")
             return t
         else:
-            return t.parent.branches[t.index-1]
+            return t.parent.branches[t.index-1]    
 
     
 def execute():
     tree = Tree(None)
     pointer = tree
-    print("Possible commands: update/add/move/print")
+    print("Possible commands: update/add/delete/move/print/location/current")
+    print("Type 'help' for description of commands")
 
     while True:
+        print()
         print(tree.__repr__())
         command = input("> ")
         if command == "update":
@@ -81,6 +94,13 @@ def execute():
             pointer = move(pointer)
         elif command == "print":
             print(tree)
+        elif command == "location":
+            print("Depth: " + str(pointer.depth) + " index: " + str(pointer.index))
+        elif command == "delete":
+            pointer = delete(pointer)
+        elif command == "current":
+            print(pointer.label)
+
         else:
             print("Invalid command")
             
